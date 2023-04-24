@@ -2,6 +2,8 @@ const express = require('express');
 const path = require('path');
 // Helper method for generating unique ids
 const uuid = require('./helpers/uuid');
+const { readAndAppend } = require('./helpers/fsUtils');
+const { readFromFile } = require('./helpers/fsUtils');
 const notes = require('./db/notes');
 
 const PORT = 3001;
@@ -17,11 +19,14 @@ app.get('/', (req, res) =>
   res.sendFile(path.join(__dirname, '/public/index.html'))
 );
 
+app.get('/notes', (req, res) =>
+  res.sendFile(path.join(__dirname, '/public/notes.html'))
+);
+
 // GET request for notes
-app.get('/api/notes', (req, res) => {
-  console.info(`GET /api/notes`);
-  res.status(200).json(notes);
-});
+app.get('/api/notes', (req, res) => 
+readFromFile('./db/db.json').then((data) => res.json(JSON.parse(data)))
+);
 
 // GET a single note
 app.get('/api/notes/:note_id', (req, res) => {
@@ -57,7 +62,7 @@ app.post('/api/notes', (req, res) => {
       text,
       note_id: uuid(),
     };
-
+    readAndAppend(newnote, './db/db.json');
     const response = {
       status: 'success',
       body: newnote,
@@ -71,7 +76,7 @@ app.post('/api/notes', (req, res) => {
 });
 
 // GET request for a specific note's noteupvotes
-app.get('/api/notnoteupvotese/:note_id', (req, res) => {
+app.delete('/api/notnoteupvotese/:note_id', (req, res) => {
   console.info(`${req.method} request received to get noteupvotes for a note`);
   for (let i = 0; i < notes.length; i++) {
     const currentnote = notes[i];
