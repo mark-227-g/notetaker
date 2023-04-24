@@ -76,6 +76,7 @@ app.post('/api/notes', (req, res) => {
 });
 
 // GET request for a specific note's noteupvotes
+/*
 app.delete('/api/notnoteupvotese/:note_id', (req, res) => {
   console.info(`${req.method} request received to get noteupvotes for a note`);
   for (let i = 0; i < notes.length; i++) {
@@ -89,10 +90,30 @@ app.delete('/api/notnoteupvotese/:note_id', (req, res) => {
     }
   }
   res.status(404).json('note ID not found');
+});*/
+
+// code from update
+app.delete('/api/notes/:note_id', (req, res) => {
+if (req.params.note_id) {
+  console.info(`${req.method} request received to delete a single a note`);
+  const noteId = req.params.note_id;
+  for (let i = 0; i < notes.length; i++) {
+    const currentnote = notes[i];
+    if (currentnote.note_id === noteId) {
+      notes.splice(i,1)
+      res.json(notes.splice(i,1));
+      return;
+    }
+  }
+  res.status(404).send('note not found');
+} else {
+  res.status(400).send('note ID not provided');
+}
 });
+// code from update
 
 // POST request to upvote a note
-app.post('/api/noteupvotes/:note_id', (req, res) => {
+app.delete('/api/noteupvotes/:note_id', (req, res) => {
   if (req.body && req.params.note_id) {
     console.info(`${req.method} request received to upvote a note`);
     const noteId = req.params.note_id;
