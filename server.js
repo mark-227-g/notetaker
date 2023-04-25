@@ -4,9 +4,10 @@ const path = require('path');
 const uuid = require('./helpers/uuid');
 const { readAndAppend } = require('./helpers/fsUtils');
 const { readFromFile } = require('./helpers/fsUtils');
-const notes = require('./db/notes');
+const { writeToFile} = require('./helpers/fsUtils');
+var notes;// = require('./db/notes');
 
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 
 const app = express();
 
@@ -25,7 +26,10 @@ app.get('/notes', (req, res) =>
 
 // GET request for notes
 app.get('/api/notes', (req, res) => 
-readFromFile('./db/db.json').then((data) => res.json(JSON.parse(data)))
+readFromFile('./db/db.json').then((data) => { 
+  notes=JSON.parse(data)
+  res.json(notes)
+})
 );
 
 // GET a single note
@@ -94,25 +98,35 @@ app.delete('/api/notnoteupvotese/:note_id', (req, res) => {
 
 // code from update
 app.delete('/api/notes/:note_id', (req, res) => {
-if (req.params.note_id) {
+  
   console.info(`${req.method} request received to delete a single a note`);
   const noteId = req.params.note_id;
+  console.info(`noteId: ${noteId}`);
+ // console.log(notes);
   for (let i = 0; i < notes.length; i++) {
     const currentnote = notes[i];
     if (currentnote.note_id === noteId) {
-      notes.splice(i,1)
-      res.json(notes.splice(i,1));
+      const deletedNote=notes.splice(i,1)
+      console.log(notes)
+      writeToFile('./db/db.json',notes)
+
+      res.json(deletedNote);
+
       return;
     }
+   }
+   res.status(404).send('note not found');
   }
-  res.status(404).send('note not found');
-} else {
-  res.status(400).send('note ID not provided');
-}
-});
+  //
+//} else {
+ // res.status(400).send('note ID not provided');
+//}
+//}
+);
 // code from update
 
 // POST request to upvote a note
+/*
 app.delete('/api/noteupvotes/:note_id', (req, res) => {
   if (req.body && req.params.note_id) {
     console.info(`${req.method} request received to upvote a note`);
@@ -128,7 +142,7 @@ app.delete('/api/noteupvotes/:note_id', (req, res) => {
     res.status(404).json('note ID not found');
   }
 });
-
+*/
 app.listen(PORT, () =>
   console.log(`App listening at http://localhost:${PORT} 🚀`)
 );
