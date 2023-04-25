@@ -5,7 +5,13 @@ const uuid = require('./helpers/uuid');
 const { readAndAppend } = require('./helpers/fsUtils');
 const { readFromFile } = require('./helpers/fsUtils');
 const { writeToFile} = require('./helpers/fsUtils');
-var notes;// = require('./db/notes');
+
+// load notes for first time
+readFromFile('./db/db.json').then((data) => { 
+  var notes=JSON.parse(data)
+})
+
+// = require('./db/notes');
 
 const PORT = process.env.PORT || 3001;
 
@@ -33,13 +39,13 @@ readFromFile('./db/db.json').then((data) => {
 );
 
 // GET a single note
-app.get('/api/notes/:note_id', (req, res) => {
-  if (req.params.note_id) {
+app.get('/api/notes/:id', (req, res) => {
+  if (req.params.id) {
     console.info(`${req.method} request received to get a single a note`);
-    const noteId = req.params.note_id;
+    const noteId = req.params.id;
     for (let i = 0; i < notes.length; i++) {
       const currentnote = notes[i];
-      if (currentnote.note_id === noteId) {
+      if (currentnote.id === noteId) {
         res.json(currentnote);
         return;
       }
@@ -64,7 +70,7 @@ app.post('/api/notes', (req, res) => {
     const newnote = {
       title,
       text,
-      note_id: uuid(),
+      id: uuid(),
     };
     readAndAppend(newnote, './db/db.json');
     const response = {
@@ -81,13 +87,13 @@ app.post('/api/notes', (req, res) => {
 
 // GET request for a specific note's noteupvotes
 /*
-app.delete('/api/notnoteupvotese/:note_id', (req, res) => {
+app.delete('/api/notnoteupvotese/:id', (req, res) => {
   console.info(`${req.method} request received to get noteupvotes for a note`);
   for (let i = 0; i < notes.length; i++) {
     const currentnote = notes[i];
-    if (currentnote.note_id === req.params.note_id) {
+    if (currentnote.id === req.params.id) {
       res.status(200).json({
-        message: `The note with ID ${currentnote.note_id} has ${currentnote.noteupvotes}`,
+        message: `The note with ID ${currentnote.id} has ${currentnote.noteupvotes}`,
         noteupvotes: currentnote.noteupvotes,
       });
       return;
@@ -97,15 +103,15 @@ app.delete('/api/notnoteupvotese/:note_id', (req, res) => {
 });*/
 
 // code from update
-app.delete('/api/notes/:note_id', (req, res) => {
+app.delete('/api/notes/:id', (req, res) => {
   
   console.info(`${req.method} request received to delete a single a note`);
-  const noteId = req.params.note_id;
+  const noteId = req.params.id;
   console.info(`noteId: ${noteId}`);
  // console.log(notes);
   for (let i = 0; i < notes.length; i++) {
     const currentnote = notes[i];
-    if (currentnote.note_id === noteId) {
+    if (currentnote.id === noteId) {
       const deletedNote=notes.splice(i,1)
       console.log(notes)
       writeToFile('./db/db.json',notes)
@@ -127,13 +133,13 @@ app.delete('/api/notes/:note_id', (req, res) => {
 
 // POST request to upvote a note
 /*
-app.delete('/api/noteupvotes/:note_id', (req, res) => {
-  if (req.body && req.params.note_id) {
+app.delete('/api/noteupvotes/:id', (req, res) => {
+  if (req.body && req.params.id) {
     console.info(`${req.method} request received to upvote a note`);
-    const noteId = req.params.note_id;
+    const noteId = req.params.id;
     for (let i = 0; i < notes.length; i++) {
       const currentnote = notes[i];
-      if (currentnote.note_id === noteId) {
+      if (currentnote.id === noteId) {
         currentnote.noteupvotes += 1;
         res.status(200).json(`New upvote count is: ${currentnote.noteupvotes}!`);
         return;
