@@ -8,8 +8,7 @@ Mark Edwards
 
 ## Deployment
 
-copy entire folder onto server
-run
+clone git repository ```https://github.com/mark-227-g/notetaker```
 
 * npm install
 * npm start
@@ -17,6 +16,9 @@ run
 in browser navigate to
 
 ```http://localhost:3001/```
+
+## Deployed application
+[Notetaker](https://m227-notetaker.herokuapp.com)
 
 ## Usage
 
